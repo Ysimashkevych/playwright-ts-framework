@@ -1,4 +1,8 @@
 node_modules
 playwright-report
 test-results
+playwright/.auth
+allure-results
+.env
+.DS_Store
 .git

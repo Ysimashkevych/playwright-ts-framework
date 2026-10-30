@@ -13,7 +13,9 @@ test.describe('JSONPlaceholder /posts', () => {
   test('GET /posts/1 returns the expected post', async ({ posts }) => {
     const res = await posts.get(1);
     expect(res.status()).toBe(200);
-    expect(expectContract(PostSchema, await res.json()).id).toBe(1);
+    const post = expectContract(PostSchema, await res.json());
+    expect(post).toMatchObject({ id: 1, userId: 1 });
+    expect(post.title.length).toBeGreaterThan(0);
   });
 
   test('GET /posts?userId=1 filters by user', async ({ posts }) => {
@@ -38,7 +40,7 @@ test.describe('JSONPlaceholder /posts', () => {
     const data: Post = { id: 1, userId: 1, title: 'updated', body: 'changed' };
     const res = await posts.update(1, data);
     expect(res.status()).toBe(200);
-    expect(await res.json()).toEqual(data);
+    expect(expectContract(PostSchema, await res.json())).toEqual(data);
   });
 
   test('DELETE /posts/1 returns 200', async ({ posts }) => {
@@ -47,6 +49,7 @@ test.describe('JSONPlaceholder /posts', () => {
 });
 
 test.describe('JSONPlaceholder /users contract', () => {
+  // A single read-only check, so it uses the raw request fixture rather than a dedicated client.
   test('GET /users/1 exposes required fields', async ({ request }) => {
     const res = await request.get('/users/1');
     expect(res.status()).toBe(200);

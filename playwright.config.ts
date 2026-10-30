@@ -26,7 +26,7 @@ export default defineConfig({
       name: 'setup',
       testDir: './tests/setup',
       testMatch: /.*\.setup\.ts/,
-      use: { baseURL: UI_BASE_URL },
+      use: { ...devices['Desktop Chrome'], baseURL: UI_BASE_URL },
     },
     {
       name: 'ui',

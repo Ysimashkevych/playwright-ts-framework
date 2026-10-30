@@ -1,5 +1,7 @@
 # playwright-ts-framework
 
+[![CI](https://github.com/Ysimashkevych/playwright-ts-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/Ysimashkevych/playwright-ts-framework/actions/workflows/ci.yml)
+
 A compact, production-style test automation framework built with Playwright and TypeScript. It demonstrates UI automation against [SauceDemo](https://www.saucedemo.com) and API contract testing against [JSONPlaceholder](https://jsonplaceholder.typicode.com).
 
 Author: Yurii Simashkevych, Senior/Lead SDET.
@@ -60,7 +62,7 @@ Targets can be overridden with environment variables:
 ## Design decisions
 
 - **Authenticate once, reuse everywhere.** A setup project produces `storageState`, so UI specs skip the login form. Login specs opt out with an empty `storageState`.
-- **Resilient locators.** `testIdAttribute` is set to `data-test` (what SauceDemo uses), and `getByTestId` is preferred over CSS or XPath. No hard sleeps: all waiting is through web-first assertions and `expect.poll`.
+- **Resilient locators.** `testIdAttribute` is set to `data-test` (what SauceDemo uses), and `getByTestId` is preferred over CSS or XPath. No hard sleeps: all waiting is through web-first assertions and `expect(...).toPass()`.
 - **Fixtures over inheritance.** Page objects are composed via fixtures, so each test requests only what it needs and setup/teardown stays explicit.
 - **Isolated test state.** Every test gets a fresh browser context; cart state does not leak between tests. JSONPlaceholder is a fake API (writes are echoed, not persisted), so write tests assert on the echoed response only.
 - **Strict TypeScript.** `strict` and `noUncheckedIndexedAccess` are enabled; the typecheck runs in CI before the tests.

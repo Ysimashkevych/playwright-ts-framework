@@ -31,7 +31,7 @@ test.describe('Cart and checkout (pre-authenticated via storageState)', () => {
       const prices = await inventoryPage.prices();
       expect(prices.length).toBeGreaterThan(1);
       expect(prices).toEqual([...prices].sort((a, b) => a - b));
-    }).toPass();
+    }).toPass({ timeout: 5_000 });
   });
 
   test.describe('checkout with one item in the cart', () => {
