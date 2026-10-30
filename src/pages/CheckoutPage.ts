@@ -7,16 +7,16 @@ export class CheckoutPage {
   readonly continueButton: Locator;
   readonly finishButton: Locator;
   readonly error: Locator;
-  readonly completeHeader: Locator;
+  readonly confirmation: Locator;
 
   constructor(page: Page) {
-    this.firstName = page.getByTestId('firstName');
-    this.lastName = page.getByTestId('lastName');
-    this.postalCode = page.getByTestId('postalCode');
-    this.continueButton = page.getByTestId('continue');
-    this.finishButton = page.getByTestId('finish');
-    this.error = page.getByTestId('error');
-    this.completeHeader = page.getByTestId('complete-header');
+    this.firstName = page.getByRole('textbox', { name: 'First Name' });
+    this.lastName = page.getByRole('textbox', { name: 'Last Name' });
+    this.postalCode = page.getByRole('textbox', { name: 'Zip/Postal Code' });
+    this.continueButton = page.getByRole('button', { name: 'Continue' });
+    this.finishButton = page.getByRole('button', { name: 'Finish' });
+    this.error = page.getByRole('alert');
+    this.confirmation = page.getByRole('heading', { name: 'Thank you for your order!' });
   }
 
   async fillInfo(info: { firstName?: string; lastName?: string; postalCode?: string }): Promise<void> {

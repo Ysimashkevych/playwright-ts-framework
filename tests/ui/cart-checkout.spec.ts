@@ -10,12 +10,12 @@ test.describe('Cart and checkout (pre-authenticated via storageState)', () => {
     await inventoryPage.expectLoaded();
   });
 
-  test('adding and removing items updates the cart badge', async ({ inventoryPage }) => {
+  test('adding and removing items updates the cart count', async ({ inventoryPage }) => {
     await inventoryPage.addToCart(BACKPACK);
     await inventoryPage.addToCart(BIKE_LIGHT);
-    await expect(inventoryPage.cartBadge).toHaveText('2');
+    await expect(inventoryPage.cart).toHaveAccessibleName('Cart, 2 items');
     await inventoryPage.removeFromCart(BACKPACK);
-    await expect(inventoryPage.cartBadge).toHaveText('1');
+    await expect(inventoryPage.cart).toHaveAccessibleName('Cart, 1 items');
   });
 
   test('cart lists the selected products', async ({ inventoryPage, cartPage }) => {
@@ -28,7 +28,7 @@ test.describe('Cart and checkout (pre-authenticated via storageState)', () => {
   test('products can be sorted by price ascending', async ({ inventoryPage }) => {
     await inventoryPage.sort.selectOption('lohi');
     await expect(async () => {
-      const prices = await inventoryPage.prices();
+      const prices = await inventoryPage.priceValues();
       expect(prices.length).toBeGreaterThan(1);
       expect(prices).toEqual([...prices].sort((a, b) => a - b));
     }).toPass({ timeout: 5_000 });
@@ -44,7 +44,7 @@ test.describe('Cart and checkout (pre-authenticated via storageState)', () => {
     test('completes an end-to-end purchase', async ({ checkoutPage }) => {
       await checkoutPage.fillInfo(CHECKOUT_INFO);
       await checkoutPage.finish();
-      await expect(checkoutPage.completeHeader).toHaveText('Thank you for your order!');
+      await expect(checkoutPage.confirmation).toBeVisible();
     });
 
     test('requires first name', async ({ checkoutPage }) => {

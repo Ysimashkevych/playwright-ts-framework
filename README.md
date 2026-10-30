@@ -62,7 +62,9 @@ Targets can be overridden with environment variables:
 ## Design decisions
 
 - **Authenticate once, reuse everywhere.** A setup project produces `storageState`, so UI specs skip the login form. Login specs opt out with an empty `storageState`.
-- **Resilient locators.** `testIdAttribute` is set to `data-test` (what SauceDemo uses), and `getByTestId` is preferred over CSS or XPath. No hard sleeps: all waiting is through web-first assertions and `expect(...).toPass()`.
+- **Semantic locators first.** Elements are found the way users and assistive technology find them: `getByRole` with an accessible name (textboxes, buttons, the `alert` for errors, the "Sort products" combobox, the "Thank you for your order!" heading). The cart count is asserted through the button's accessible name ("Cart, 2 items"), which is what a screen reader announces. If a role locator cannot find something, that is an accessibility bug in the product, not a reason to reach for CSS.
+- **Test ids only as a fallback**, with a comment saying why: product cards have no list or article role, so `data-test="inventory-item"` scopes actions to one card, and prices are plain text with no role. `testIdAttribute` is set to `data-test`, which SauceDemo uses. No CSS or XPath.
+- **No hard sleeps.** All waiting is through web-first assertions and `expect(...).toPass()`.
 - **Fixtures over inheritance.** Page objects are composed via fixtures, so each test requests only what it needs and setup/teardown stays explicit.
 - **Isolated test state.** Every test gets a fresh browser context; cart state does not leak between tests. JSONPlaceholder is a fake API (writes are echoed, not persisted), so write tests assert on the echoed response only.
 - **Strict TypeScript.** `strict` and `noUncheckedIndexedAccess` are enabled; the typecheck runs in CI before the tests.

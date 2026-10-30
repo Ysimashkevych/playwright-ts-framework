@@ -1,45 +1,47 @@
 import { type Locator, type Page, expect } from '@playwright/test';
 
-/** Converts a product name to its data-test slug, e.g. "Sauce Labs Backpack" -> "sauce-labs-backpack". */
-const slug = (name: string): string => name.toLowerCase().replace(/\s+/g, '-');
-
 export class InventoryPage {
-  readonly title: Locator;
-  readonly items: Locator;
-  readonly cartBadge: Locator;
-  readonly cartLink: Locator;
   readonly sort: Locator;
+  readonly cart: Locator;
+  /** Prices are plain text with no role or label, so a test id is the only stable hook. */
+  readonly prices: Locator;
 
   constructor(private readonly page: Page) {
-    this.title = page.getByTestId('title');
-    this.items = page.getByTestId('inventory-item');
-    this.cartBadge = page.getByTestId('shopping-cart-badge');
-    this.cartLink = page.getByTestId('shopping-cart-link');
-    this.sort = page.getByTestId('product-sort-container');
+    this.sort = page.getByRole('combobox', { name: 'Sort products' });
+    this.cart = page.getByRole('button', { name: /^Cart,/ });
+    this.prices = page.getByTestId('inventory-item-price');
+  }
+
+  /**
+   * Product cards have no list or article role, so they look identical to
+   * assistive technology; the test id scopes actions to one card.
+   */
+  product(name: string): Locator {
+    return this.page.getByTestId('inventory-item').filter({ has: this.page.getByRole('button', { name: `View details for ${name}` }) });
   }
 
   async goto(): Promise<void> {
     await this.page.goto('/inventory.html');
   }
 
-  async addToCart(product: string): Promise<void> {
-    await this.page.getByTestId(`add-to-cart-${slug(product)}`).click();
+  async addToCart(name: string): Promise<void> {
+    await this.product(name).getByRole('button', { name: 'Add to cart' }).click();
   }
 
-  async removeFromCart(product: string): Promise<void> {
-    await this.page.getByTestId(`remove-${slug(product)}`).click();
+  async removeFromCart(name: string): Promise<void> {
+    await this.product(name).getByRole('button', { name: 'Remove' }).click();
   }
 
-  async prices(): Promise<number[]> {
-    const texts = await this.page.getByTestId('inventory-item-price').allTextContents();
+  async priceValues(): Promise<number[]> {
+    const texts = await this.prices.allTextContents();
     return texts.map((t) => Number(t.replace('$', '')));
   }
 
   async openCart(): Promise<void> {
-    await this.cartLink.click();
+    await this.cart.click();
   }
 
   async expectLoaded(): Promise<void> {
-    await expect(this.title).toHaveText('Products');
+    await expect(this.sort).toBeVisible();
   }
 }
