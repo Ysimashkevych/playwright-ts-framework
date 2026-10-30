@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
+import { API_BASE_URL, STORAGE_STATE, UI_BASE_URL } from './src/data/env';
 
 const isCI = !!process.env.CI;
-export const STORAGE_STATE = 'playwright/.auth/standard_user.json';
 
 export default defineConfig({
   testDir: './tests',
@@ -26,7 +26,7 @@ export default defineConfig({
       name: 'setup',
       testDir: './tests/setup',
       testMatch: /.*\.setup\.ts/,
-      use: { baseURL: 'https://www.saucedemo.com' },
+      use: { baseURL: UI_BASE_URL },
     },
     {
       name: 'ui',
@@ -34,14 +34,14 @@ export default defineConfig({
       dependencies: ['setup'],
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: 'https://www.saucedemo.com',
+        baseURL: UI_BASE_URL,
         storageState: STORAGE_STATE,
       },
     },
     {
       name: 'api',
       testDir: './tests/api',
-      use: { baseURL: 'https://jsonplaceholder.typicode.com' },
+      use: { baseURL: API_BASE_URL },
     },
   ],
 });

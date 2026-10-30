@@ -22,39 +22,39 @@ test.describe('Cart and checkout (pre-authenticated via storageState)', () => {
     await inventoryPage.addToCart(BACKPACK);
     await inventoryPage.addToCart(BIKE_LIGHT);
     await inventoryPage.openCart();
-    await cartPage.expectProducts([BACKPACK, BIKE_LIGHT]);
-  });
-
-  test('completes an end-to-end purchase', async ({ inventoryPage, cartPage, checkoutPage }) => {
-    await inventoryPage.addToCart(BACKPACK);
-    await inventoryPage.openCart();
-    await cartPage.checkout();
-    await checkoutPage.fillInfo(CHECKOUT_INFO);
-    await checkoutPage.finish();
-    await checkoutPage.expectOrderComplete();
-  });
-
-  test('checkout requires first name', async ({ inventoryPage, cartPage, checkoutPage }) => {
-    await inventoryPage.addToCart(BACKPACK);
-    await inventoryPage.openCart();
-    await cartPage.checkout();
-    await checkoutPage.fillInfo({ lastName: CHECKOUT_INFO.lastName, postalCode: CHECKOUT_INFO.postalCode });
-    await expect(checkoutPage.error).toContainText('First Name is required');
-  });
-
-  test('checkout requires postal code', async ({ inventoryPage, cartPage, checkoutPage }) => {
-    await inventoryPage.addToCart(BACKPACK);
-    await inventoryPage.openCart();
-    await cartPage.checkout();
-    await checkoutPage.fillInfo({ firstName: CHECKOUT_INFO.firstName, lastName: CHECKOUT_INFO.lastName });
-    await expect(checkoutPage.error).toContainText('Postal Code is required');
+    await expect(cartPage.itemNames).toHaveText([BACKPACK, BIKE_LIGHT]);
   });
 
   test('products can be sorted by price ascending', async ({ inventoryPage }) => {
     await inventoryPage.sort.selectOption('lohi');
-    await expect.poll(async () => {
+    await expect(async () => {
       const prices = await inventoryPage.prices();
-      return prices.length > 1 && prices.every((p, i) => i === 0 || p >= prices[i - 1]!);
-    }).toBe(true);
+      expect(prices.length).toBeGreaterThan(1);
+      expect(prices).toEqual([...prices].sort((a, b) => a - b));
+    }).toPass();
+  });
+
+  test.describe('checkout with one item in the cart', () => {
+    test.beforeEach(async ({ inventoryPage, cartPage }) => {
+      await inventoryPage.addToCart(BACKPACK);
+      await inventoryPage.openCart();
+      await cartPage.checkout();
+    });
+
+    test('completes an end-to-end purchase', async ({ checkoutPage }) => {
+      await checkoutPage.fillInfo(CHECKOUT_INFO);
+      await checkoutPage.finish();
+      await expect(checkoutPage.completeHeader).toHaveText('Thank you for your order!');
+    });
+
+    test('requires first name', async ({ checkoutPage }) => {
+      await checkoutPage.fillInfo({ lastName: CHECKOUT_INFO.lastName, postalCode: CHECKOUT_INFO.postalCode });
+      await expect(checkoutPage.error).toContainText('First Name is required');
+    });
+
+    test('requires postal code', async ({ checkoutPage }) => {
+      await checkoutPage.fillInfo({ firstName: CHECKOUT_INFO.firstName, lastName: CHECKOUT_INFO.lastName });
+      await expect(checkoutPage.error).toContainText('Postal Code is required');
+    });
   });
 });

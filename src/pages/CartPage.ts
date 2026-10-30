@@ -1,16 +1,14 @@
-import { type Locator, type Page, expect } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 export class CartPage {
   readonly items: Locator;
+  readonly itemNames: Locator;
   readonly checkoutButton: Locator;
 
-  constructor(private readonly page: Page) {
+  constructor(page: Page) {
     this.items = page.getByTestId('inventory-item');
+    this.itemNames = page.getByTestId('inventory-item-name');
     this.checkoutButton = page.getByTestId('checkout');
-  }
-
-  async expectProducts(names: string[]): Promise<void> {
-    await expect(this.page.getByTestId('inventory-item-name')).toHaveText(names);
   }
 
   async checkout(): Promise<void> {

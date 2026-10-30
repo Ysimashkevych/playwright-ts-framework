@@ -1,25 +1,25 @@
-export interface Post {
-  userId: number;
-  id: number;
-  title: string;
-  body: string;
-}
+import { expect } from '@playwright/test';
+import { z } from 'zod';
 
-export interface User {
-  id: number;
-  name: string;
-  username: string;
-  email: string;
-}
+export const PostSchema = z.object({
+  userId: z.number().int(),
+  id: z.number().int(),
+  title: z.string(),
+  body: z.string(),
+});
+export type Post = z.infer<typeof PostSchema>;
 
-/** Lightweight runtime contract check (no extra dependency). */
-export function isPost(v: unknown): v is Post {
-  if (typeof v !== 'object' || v === null) return false;
-  const o = v as Record<string, unknown>;
-  return (
-    typeof o.userId === 'number' &&
-    typeof o.id === 'number' &&
-    typeof o.title === 'string' &&
-    typeof o.body === 'string'
-  );
+export const UserSchema = z.object({
+  id: z.number().int(),
+  name: z.string().min(1),
+  username: z.string().min(1),
+  email: z.email(),
+});
+export type User = z.infer<typeof UserSchema>;
+
+/** Asserts that body matches the contract and returns it typed; the failure message lists every violation. */
+export function expectContract<T>(schema: z.ZodType<T>, body: unknown): T {
+  const result = schema.safeParse(body);
+  expect(result.success, result.error ? z.prettifyError(result.error) : undefined).toBe(true);
+  return result.data as T;
 }

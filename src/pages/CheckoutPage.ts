@@ -1,4 +1,4 @@
-import { type Locator, type Page, expect } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 export class CheckoutPage {
   readonly firstName: Locator;
@@ -9,7 +9,7 @@ export class CheckoutPage {
   readonly error: Locator;
   readonly completeHeader: Locator;
 
-  constructor(private readonly page: Page) {
+  constructor(page: Page) {
     this.firstName = page.getByTestId('firstName');
     this.lastName = page.getByTestId('lastName');
     this.postalCode = page.getByTestId('postalCode');
@@ -28,9 +28,5 @@ export class CheckoutPage {
 
   async finish(): Promise<void> {
     await this.finishButton.click();
-  }
-
-  async expectOrderComplete(): Promise<void> {
-    await expect(this.completeHeader).toHaveText('Thank you for your order!');
   }
 }

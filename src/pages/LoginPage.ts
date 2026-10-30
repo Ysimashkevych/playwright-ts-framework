@@ -1,4 +1,4 @@
-import { type Locator, type Page, expect } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 export class LoginPage {
   readonly username: Locator;
@@ -21,9 +21,5 @@ export class LoginPage {
     await this.username.fill(username);
     await this.password.fill(password);
     await this.submit.click();
-  }
-
-  async expectError(text: string | RegExp): Promise<void> {
-    await expect(this.error).toContainText(text);
   }
 }

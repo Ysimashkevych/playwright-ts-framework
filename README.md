@@ -16,10 +16,10 @@ Three Playwright projects, defined in `playwright.config.ts`:
 
 Layers:
 
-- **Page objects** (`src/pages`) hold locators and user-level actions. Assertions about page state live in small `expect*` helpers; test intent stays in the specs.
+- **Page objects** (`src/pages`) expose locators and user-level actions only. Assertions live in the specs, so each test shows what it verifies; the one exception is `InventoryPage.expectLoaded()`, a readiness check.
 - **Fixtures** (`src/fixtures`) inject page objects (`index.ts`) and a typed API client (`api.ts`) into tests.
-- **API client** (`src/api`) wraps the `/posts` resource and holds a lightweight runtime contract check (`isPost`).
-- **Test data** (`src/data`) keeps public demo credentials and checkout info out of specs.
+- **API client** (`src/api`) wraps the `/posts` resource. Response contracts are [zod](https://zod.dev) schemas checked with `expectContract`, which fails with every violation listed and returns the typed body.
+- **Test data and environment** (`src/data`) keep public demo credentials, checkout info, base URLs and the storageState path out of specs and config.
 - **Path aliases** `@pages/*`, `@fixtures/*`, `@api/*`, `@data/*` are declared in `tsconfig.json` and resolved natively by Playwright.
 
 ## Running
@@ -42,7 +42,14 @@ docker build -t playwright-ts-framework .
 docker run --rm -v "$PWD/playwright-report:/app/playwright-report" playwright-ts-framework
 ```
 
-The Docker base image tag should match the `@playwright/test` version in `package.json`.
+The Docker base image tag matches the exact `@playwright/test` version pinned in `package.json`; bump both together.
+
+Targets can be overridden with environment variables:
+
+| Variable | Default |
+|---|---|
+| `UI_BASE_URL` | `https://www.saucedemo.com` |
+| `API_BASE_URL` | `https://jsonplaceholder.typicode.com` |
 
 ## Reporting and CI
 
@@ -60,6 +67,12 @@ The Docker base image tag should match the `@playwright/test` version in `packag
 - **Separate UI and API projects** so they can run, fail and be filtered independently.
 - **CI retries** (2) and `forbidOnly` apply only when `CI` is set, so local runs fail fast.
 
+## Related projects
+
+- [graphql-api-tests-go](https://github.com/Ysimashkevych/graphql-api-tests-go): GraphQL API testing in Go.
+- [ai-test-triage](https://github.com/Ysimashkevych/ai-test-triage): LLM-assisted triage of Playwright failures.
+- [qa-claude-skills](https://github.com/Ysimashkevych/qa-claude-skills): Claude Code skills for QA, including the Playwright review checklist this repo follows.
+
 ## Limitations
 
 Both targets are public third-party demo sites. Tests depend on their availability and on their current behavior; a failure can come from the site rather than from the framework.
@@ -74,7 +87,7 @@ Both targets are public third-party demo sites. Tests depend on their availabili
 ├── tsconfig.json
 ├── src
 │   ├── api/        # PostsClient, schemas / contract checks
-│   ├── data/       # users and checkout data
+│   ├── data/       # users, checkout data, base URLs (env.ts)
 │   ├── fixtures/   # UI and API fixtures
 │   └── pages/      # Login, Inventory, Cart, Checkout page objects
 └── tests
@@ -82,3 +95,7 @@ Both targets are public third-party demo sites. Tests depend on their availabili
     ├── ui/         # login.spec.ts, cart-checkout.spec.ts
     └── api/        # posts.spec.ts
 ```
+
+## License
+
+MIT, see [LICENSE](LICENSE).

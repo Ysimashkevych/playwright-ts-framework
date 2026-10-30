@@ -15,29 +15,27 @@ test.describe('Login', () => {
 
   test('locked out user sees an error', async ({ loginPage }) => {
     await loginPage.login(USERS.lockedOut.username, USERS.lockedOut.password);
-    await loginPage.expectError('this user has been locked out');
+    await expect(loginPage.error).toContainText('this user has been locked out');
   });
 
   test('wrong password is rejected', async ({ loginPage }) => {
     await loginPage.login(USERS.standard.username, 'wrong');
-    await loginPage.expectError('Username and password do not match');
+    await expect(loginPage.error).toContainText('Username and password do not match');
   });
 
   test('empty username is rejected', async ({ loginPage }) => {
-    await loginPage.password.fill('secret_sauce');
-    await loginPage.submit.click();
-    await loginPage.expectError('Username is required');
+    await loginPage.login('', USERS.standard.password);
+    await expect(loginPage.error).toContainText('Username is required');
   });
 
   test('empty password is rejected', async ({ loginPage }) => {
-    await loginPage.username.fill('standard_user');
-    await loginPage.submit.click();
-    await loginPage.expectError('Password is required');
+    await loginPage.login(USERS.standard.username, '');
+    await expect(loginPage.error).toContainText('Password is required');
   });
 
-  test('protected page redirects to login when unauthenticated', async ({ page }) => {
+  test('protected page redirects to login when unauthenticated', async ({ page, loginPage }) => {
     await page.goto('/inventory.html');
     await expect(page).toHaveURL('/');
-    await expect(page.getByTestId('error')).toContainText("You can only access '/inventory.html' when you are logged in");
+    await expect(loginPage.error).toContainText("You can only access '/inventory.html' when you are logged in");
   });
 });
