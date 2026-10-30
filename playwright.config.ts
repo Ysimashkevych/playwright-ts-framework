@@ -14,7 +14,6 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { open: 'never' }],
-    ['allure-playwright', { resultsDir: 'allure-results' }],
   ],
   use: {
     trace: 'on-first-retry',

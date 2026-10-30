@@ -33,23 +33,22 @@ npm run test:ui     # setup + ui
 npm run test:api    # api only
 npm run typecheck   # tsc --noEmit
 npm run report      # open the Playwright HTML report
-npm run report:allure  # build and open the Allure report (needs a Java runtime)
 ```
 
 Docker (official Playwright image):
 
 ```bash
 docker build -t playwright-ts-framework .
-docker run --rm -v "$PWD/playwright-report:/app/playwright-report" -v "$PWD/allure-results:/app/allure-results" playwright-ts-framework
+docker run --rm -v "$PWD/playwright-report:/app/playwright-report" playwright-ts-framework
 ```
 
 The Docker base image tag should match the `@playwright/test` version in `package.json`.
 
 ## Reporting and CI
 
-- Reporters: console list, Playwright HTML (`playwright-report/`), Allure results (`allure-results/`).
+- Reporters: console list, Playwright HTML (`playwright-report/`).
 - Traces are captured on first retry; screenshots and video are kept on failure.
-- `.github/workflows/ci.yml` runs typecheck and tests on push, pull request and manual dispatch, then uploads the HTML report, Allure results and (on failure) `test-results/` as artifacts.
+- `.github/workflows/ci.yml` runs typecheck and tests on push, pull request and manual dispatch, then uploads the HTML report and (on failure) `test-results/` as artifacts.
 
 ## Design decisions
 
